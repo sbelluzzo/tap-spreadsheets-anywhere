@@ -26,6 +26,9 @@ def generator_wrapper(reader, headers = None):
 
             to_return[formatted_key.lower()] = cell.value
 
+        if not any(to_return.values()):
+            continue
+
         yield to_return
 
 def get_legacy_row_iterator(table_spec, file_handle):
