@@ -6,18 +6,15 @@ import xlrd
 
 LOGGER = logging.getLogger(__name__)
 
-def generator_wrapper(reader):
-    header_row = None
+def generator_wrapper(reader, headers = None):
     for row in reader:
         to_return = {}
-        if header_row is None:
-            header_row = row
+        if headers is None:
+            headers = [cell.value for cell in row] 
             continue
 
         for index, cell in enumerate(row):
-            header_cell = header_row[index]
-
-            formatted_key = header_cell.value
+            formatted_key = headers[index]
             if not formatted_key:
                 formatted_key = '' # default to empty string for key
 
@@ -58,7 +55,7 @@ def get_legacy_row_iterator(table_spec, file_handle):
         except Exception as e:
             LOGGER.info(e)
             sheet = workbook.sheet_by_name(sheet_name_list[0])
-    return generator_wrapper(sheet.get_rows())
+    return generator_wrapper(sheet.get_rows(), table_spec.get("field_names"))
 
 
 def get_row_iterator(table_spec, file_handle):
@@ -88,4 +85,4 @@ def get_row_iterator(table_spec, file_handle):
         except Exception as e:
             LOGGER.info(e)
             active_sheet = worksheets[0]
-    return generator_wrapper(active_sheet)
+    return generator_wrapper(active_sheet, table_spec.get("field_names"))
